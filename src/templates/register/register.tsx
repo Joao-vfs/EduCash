@@ -132,7 +132,7 @@ export const RegisterTemplate: React.FC = () => {
         <Input
           name="nome"
           placeholder="Nome"
-          className="lg:w-2xl"
+
           value={formData.nome}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
@@ -141,7 +141,6 @@ export const RegisterTemplate: React.FC = () => {
         <Input
           name="sobrenome"
           placeholder="Sobrenome"
-          className="lg:w-2xl"
           value={formData.sobrenome}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
@@ -151,7 +150,6 @@ export const RegisterTemplate: React.FC = () => {
           name="email"
           placeholder="Email"
           type="email"
-          className="lg:w-2xl"
           value={formData.email}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
@@ -178,7 +176,6 @@ export const RegisterTemplate: React.FC = () => {
           name="password"
           placeholder="Senha"
           type="password"
-          className="lg:w-2xl"
           value={passwordData.password}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
@@ -188,7 +185,6 @@ export const RegisterTemplate: React.FC = () => {
           name="confirmPassword"
           placeholder="Confirmar senha"
           type="password"
-          className="lg:w-2xl"
           value={passwordData.confirmPassword}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
@@ -203,7 +199,7 @@ export const RegisterTemplate: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="w-full h-full">
-      <Button variant="back" size="icon" onClick={() => back()}>
+      <Button variant="back" size="icon" onClick={() => back()} className="cursor-pointer">
         <Chevron/>
       </Button>
       <div className="h-full w-full flex flex-col items-center justify-evenly lg:items-center lg:justify-center">
@@ -220,11 +216,11 @@ export const RegisterTemplate: React.FC = () => {
             </Text>
           </div>
 
-          <div className="mb-16">{currentStep}</div>
+          <div className="mb-16 w-full lg:w-2xl">{currentStep}</div>
 
           <Button 
             type="submit" 
-            className="w-full mb-16 lg:w-2xl"
+            className="w-full mb-16 lg:w-2xl cursor-pointer"
             disabled={step === 2 && selectedObjectives.length === 0}
           >
             <div className="flex items-center justify-between px-4 w-full">
