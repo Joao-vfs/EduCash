@@ -1,0 +1,33 @@
+import { ArrowIconProps } from "./type";
+
+export const Arrow: React.FC<ArrowIconProps> = ({
+  className = "",
+  direction = "right",
+  width = 16,
+  height = 12,
+  ...props
+}) => {
+  const directionStyles = {
+    left: "rotate-180",
+    up: "rotate-270",
+    down: "rotate-90",
+    right: "rotate-0",
+  };
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={width}
+      height={height}
+      viewBox="0 0 16 12"
+      fill="none"
+      className={`${className} ${directionStyles[direction]}`}
+      {...props}
+    >
+      <path
+        d="M15.7063 6.70859C16.0969 6.31797 16.0969 5.68359 15.7063 5.29297L10.7063 0.292969C10.3156 -0.0976562 9.68125 -0.0976562 9.29062 0.292969C8.9 0.683594 8.9 1.31797 9.29062 1.70859L12.5844 5.00234H1C0.446875 5.00234 0 5.44922 0 6.00234C0 6.55547 0.446875 7.00234 1 7.00234H12.5844L9.29062 10.2961C8.9 10.6867 8.9 11.3211 9.29062 11.7117C9.68125 12.1023 10.3156 12.1023 10.7063 11.7117L15.7063 6.71172V6.70859Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};

@@ -1,0 +1,1 @@
+export { ROUTES as AUTH_ROUTES } from './routes';
