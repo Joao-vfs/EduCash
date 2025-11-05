@@ -10,8 +10,10 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rotas públicas (não requerem autenticação)
-  const publicRoutes = ['/login', '/register', '/forgot-password'];
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+  const publicRoutes = ['/', '/login', '/register', '/forgot-password'];
+  const isPublicRoute = publicRoutes.some(route => 
+    route === '/' ? pathname === '/' : pathname.startsWith(route)
+  );
 
   // Rotas de API públicas
   const isPublicApi = pathname.startsWith('/api/auth');

@@ -9,6 +9,8 @@ import { confirmPassword, email, min, required } from "@/utils";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useState } from "react";
+import { registerAction } from "@/lib/auth/actions";
+import { saveUserToLocalStorage } from "@/lib/auth/storage";
 
 export const RegisterTemplate: React.FC = () => {
   const searchParams = useSearchParams();
@@ -31,6 +33,8 @@ export const RegisterTemplate: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [registerError, setRegisterError] = useState<string | null>(null);
 
   const { validate, handleChange, handleBlur, getError } = useFormValidation({
     schema: {
@@ -101,9 +105,10 @@ export const RegisterTemplate: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    setRegisterError(null);
     
     if (step === 1) {
       if (!validate({ ...formData })) {
@@ -112,7 +117,7 @@ export const RegisterTemplate: React.FC = () => {
       push(`${ROUTES.REGISTER_STEP}2`);
     } else if (step === 2) {
       if (selectedObjectives.length === 0) {
-        alert("Selecione pelo menos um objetivo");
+        setRegisterError("Selecione pelo menos um objetivo");
         return;
       }
       push(`${ROUTES.REGISTER_STEP}3`);
@@ -120,9 +125,26 @@ export const RegisterTemplate: React.FC = () => {
       if (!validatePassword({ ...passwordData })) {
         return;
       }
-      console.log("Dados finais:", { formData, selectedObjectives, passwordData });
-      // Aqui você pode enviar os dados para o backend
-      push(ROUTES.LOGIN);
+      
+      setIsLoading(true);
+      try {
+        const result = await registerAction({
+          name: `${formData.nome} ${formData.sobrenome}`,
+          email: formData.email,
+          password: passwordData.password,
+        });
+
+        if (result.success && result.user) {
+          saveUserToLocalStorage(result.user);
+          push(ROUTES.DASHBOARD);
+        } else {
+          setRegisterError(result.error || "Erro ao criar conta");
+        }
+      } catch (error) {
+        setRegisterError("Erro ao conectar com o servidor");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -178,6 +200,7 @@ export const RegisterTemplate: React.FC = () => {
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           error={getPasswordError("password")}
+          disabled={isLoading}
         />
         <Input
           name="confirmPassword"
@@ -187,7 +210,13 @@ export const RegisterTemplate: React.FC = () => {
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           error={getPasswordError("confirmPassword")}
+          disabled={isLoading}
         />
+        {registerError && (
+          <Text variant="caption" className="text-red-500">
+            {registerError}
+          </Text>
+        )}
       </div>
     ),
   };
@@ -219,10 +248,10 @@ export const RegisterTemplate: React.FC = () => {
           <Button 
             type="submit" 
             className="w-full mb-16"
-            disabled={step === 2 && selectedObjectives.length === 0}
+            disabled={(step === 2 && selectedObjectives.length === 0) || isLoading}
           >
             <div className="flex items-center justify-between px-4 w-full">
-              {step === 3 ? "Finalizar" : "Continuar"}
+              {isLoading ? "Criando conta..." : step === 3 ? "Finalizar" : "Continuar"}
               <Arrow direction="right" />
             </div>
           </Button>

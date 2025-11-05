@@ -8,7 +8,7 @@ Aplicação web desenvolvida em Next.js focada em educação financeira, permiti
 - **TypeScript** - Tipagem estática
 - **Tailwind CSS v4** - Estilização
 - **React Hooks** - Gerenciamento de estado
-- **Next Auth** - Autenticação (preparado)
+- **Sistema de Autenticação** - Login e registro com sessões
 
 ## 📁 Arquitetura
 
@@ -59,11 +59,16 @@ src/
 ## 🔧 Funcionalidades
 
 ### Autenticação
-- Login de usuários
-- Registro em múltiplas etapas:
+Sistema completo de autenticação com:
+- **Login de usuários** com validação de credenciais
+- **Registro em múltiplas etapas**:
   - Step 1: Dados pessoais (nome, sobrenome, email)
   - Step 2: Seleção de objetivos financeiros
   - Step 3: Definição de senha
+- **Proteção de rotas** via middleware
+- **Gerenciamento de sessão** com cookies HTTP-only
+- **Redirecionamento automático** para rotas protegidas
+- **Feedback de erros** em tempo real
 
 ### Dashboard
 - Visualização de saldo total
@@ -125,6 +130,9 @@ Hook para gerenciamento de tema
 ### `useDevice`
 Hook para detecção de dispositivo
 
+### `useLogout`
+Hook para realizar logout com limpeza de sessão e localStorage
+
 ## 🎨 Sistema de Design
 
 ### Cores
@@ -159,15 +167,30 @@ pnpm build
 pnpm start
 ```
 
-## 🔐 Rotas
+## 🔐 Rotas e Autenticação
 
 ### Públicas
 - `/` - Home
 - `/login` - Login
-- `/register` - Registro
+- `/register` - Registro (multi-step)
 
-### Protegidas
+### Protegidas (requerem autenticação)
 - `/dashboard` - Dashboard principal
+
+### Sistema de Proteção
+O projeto utiliza um **middleware do Next.js** que:
+- Verifica a presença de sessão em todas as rotas
+- Redireciona usuários não autenticados para `/login`
+- Redireciona usuários autenticados de rotas públicas para `/dashboard`
+- Preserva a URL de destino para redirecionamento pós-login
+
+### Gerenciamento de Sessão
+- Sessões armazenadas em cookies HTTP-only
+- Expiração de 7 dias
+- Validação automática em cada requisição
+- Suporte a logout com limpeza de sessão
+- **Dados do usuário salvos no localStorage** para acesso rápido no cliente
+- Sincronização entre sessão do servidor e localStorage
 
 ## 🛠️ Utilitários
 
@@ -206,13 +229,139 @@ pnpm start
 ### Ordenação de Funções
 Funções ordenadas na ordem em que são chamadas (ex: método `execute` primeiro, depois métodos auxiliares)
 
+## 🔑 Sistema de Login
+
+### Fluxo de Autenticação
+
+1. **Login**:
+   - Usuário insere email e senha
+   - Validação de campos no frontend
+   - GET na API para buscar listagem de usuários
+   - Verificação de email e senha na listagem
+   - Criação de sessão com dados do usuário
+   - **Salvamento dos dados no localStorage**
+   - Redirecionamento para dashboard
+
+2. **Registro**:
+   - Step 1: Validação de dados pessoais
+   - Step 2: Seleção de objetivos (mínimo 1)
+   - Step 3: Validação de senha e confirmação
+   - Envio de dados para API
+   - Criação automática de sessão
+   - **Salvamento dos dados no localStorage**
+   - Redirecionamento para dashboard
+
+3. **Proteção de Rotas**:
+   - Middleware verifica sessão em todas as rotas
+   - Rotas protegidas redirecionam para login se não autenticado
+   - Layout protegido valida sessão no servidor
+
+### Estrutura de Autenticação
+
+```typescript
+// Server Actions (src/lib/auth/actions.ts)
+loginAction(credentials)      // Realiza login
+registerAction(data)          // Realiza registro
+logoutAction()               // Realiza logout
+
+// Gerenciamento de Sessão (src/lib/auth/session.ts)
+getSession()                 // Obtém sessão atual
+createSession(user)          // Cria nova sessão
+deleteSession()              // Remove sessão
+isAuthenticated()            // Verifica autenticação
+
+// Gerenciamento de LocalStorage (src/lib/auth/storage.ts)
+saveUserToLocalStorage(user)     // Salva dados do usuário
+getUserFromLocalStorage()        // Obtém dados do usuário
+removeUserFromLocalStorage()     // Remove dados do usuário
+
+// Serviço de API (services/auth/auth.tsx)
+authService.login(email, password)           // GET /usuarios - Busca usuário na listagem
+authService.register(name, email, password)  // POST /usuarios - Cria novo usuário
+
+// Hook de Logout (src/hooks/useLogout.ts)
+useLogout()                  // Hook para logout com limpeza de localStorage
+```
+
+### Estrutura da API
+
+**Base URL:** `http://localhost:8081/api`
+
+**GET /usuarios** - Retorna listagem de usuários para validação:
+```json
+[
+  {
+    "id": 2,
+    "idGrupo": null,
+    "nome": "João",
+    "email": "joao@email.com",
+    "senha": "123"
+  },
+  {
+    "id": 3,
+    "idGrupo": null,
+    "nome": "Maria",
+    "email": "maria@email.com",
+    "senha": "456"
+  }
+]
+```
+
+**POST /usuarios** - Cria novo usuário:
+```json
+{
+  "nome": "Nome Completo",
+  "email": "email@example.com",
+  "senha": "senha123",
+  "idGrupo": null
+}
+```
+
+### Exemplo de Uso do LocalStorage
+
+```typescript
+// Em qualquer componente client-side
+import { getUserFromLocalStorage } from "@/lib/auth/storage";
+
+function MyComponent() {
+  const user = getUserFromLocalStorage();
+  
+  if (user) {
+    console.log(user.id);    // ID do usuário
+    console.log(user.name);  // Nome do usuário
+    console.log(user.email); // Email do usuário
+  }
+}
+
+// Para fazer logout
+import { useLogout } from "@/hooks";
+
+function LogoutButton() {
+  const { logout } = useLogout();
+  
+  return (
+    <button onClick={logout}>
+      Sair
+    </button>
+  );
+}
+```
+
+### Variáveis de Ambiente
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8081/api  # URL da API backend
+```
+
+**Nota:** A URL padrão já está configurada como `http://localhost:8081/api` no código. Você só precisa definir a variável de ambiente se sua API estiver em outra URL.
+
 ## 🚧 Em Desenvolvimento
 
 - Sistema de aulas
-- Integração com backend
 - Gráficos e relatórios
 - Notificações
 - Configurações de perfil
+- Recuperação de senha
 
 ## 📄 Licença
 

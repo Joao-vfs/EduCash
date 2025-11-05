@@ -8,6 +8,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { loginAction } from "@/lib/auth/actions";
+import { saveUserToLocalStorage } from "@/lib/auth/storage";
 
 export const LoginTemplate: React.FC = () => {
   const [formData, setFormData] = useState<{ email: string; password: string }>(
@@ -16,8 +18,10 @@ export const LoginTemplate: React.FC = () => {
       password: "",
     }
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
-  const { errors, validate, handleChange, handleBlur, getError } =
+  const { validate, handleChange, handleBlur, getError } =
     useFormValidation({
       schema: {
         email: [required("Email é obrigatório"), email("Email inválido")],
@@ -27,11 +31,32 @@ export const LoginTemplate: React.FC = () => {
 
   const { push } = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    validate(formData);
-    if (Object.keys(errors).length === 0) {
-      push("/dashboard");
+    setLoginError(null);
+    
+    const isValid = validate(formData);
+    if (!isValid) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const result = await loginAction({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (result.success && result.user) {
+        saveUserToLocalStorage(result.user);
+        push("/dashboard");
+      } else {
+        setLoginError(result.error || "Erro ao fazer login");
+      }
+    } catch (error) {
+      setLoginError("Erro ao conectar com o servidor");
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -65,10 +90,12 @@ export const LoginTemplate: React.FC = () => {
               }}
               onBlur={(e) => handleBlur("email", e.target.value, formData)}
               error={getError("email")}
+              disabled={isLoading}
             />
             <Input
               name="password"
               placeholder="Senha"
+              type="password"
               value={formData.password}
               onChange={(e) => {
                 setFormData({ ...formData, password: e.target.value });
@@ -76,15 +103,21 @@ export const LoginTemplate: React.FC = () => {
               }}
               onBlur={(e) => handleBlur("password", e.target.value, formData)}
               error={getError("password")}
+              disabled={isLoading}
             />
+            {loginError && (
+              <Text variant="caption" className="text-red-500">
+                {loginError}
+              </Text>
+            )}
           </div>
 
           <div className="flex flex-col items-start justify-start gap-6 w-full">
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" disabled={isLoading}>
               Esqueceu sua senha?
             </Button>
-            <Button type="submit">
-              <p>Confirmar e Entrar</p>
+            <Button type="submit" disabled={isLoading}>
+              <p>{isLoading ? "Entrando..." : "Confirmar e Entrar"}</p>
             </Button>
           </div>
         </div>

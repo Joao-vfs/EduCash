@@ -1,7 +1,7 @@
 export const APP_NAME = "Edu Cash";
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8081/api";
 
 export const ROUTES = {
   HOME: "/",

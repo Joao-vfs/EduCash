@@ -4,11 +4,18 @@ import { Text, Button } from "@/components/atoms";
 import { BalanceCard, RegistryCard } from "@/components/molecules";
 import { TransactionList } from "@/components/organisms";
 import { CreditCard } from "@/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getUserFromLocalStorage } from "@/lib/auth/storage";
 
 export const DashboardTemplate: React.FC = () => {
-  const [userName] = useState("John");
+  const [userName, setUserName] = useState("Usuário");
   const [balance] = useState(3000.0);
+  useEffect(() => {
+    const user = getUserFromLocalStorage();
+    if (user) {
+      setUserName(user.name);
+    }
+  }, []);
 
   const transactions = [
     {
@@ -63,7 +70,6 @@ export const DashboardTemplate: React.FC = () => {
         <Text variant="body" weight="medium" className="text-xl">
           Registros
         </Text>
-        
         <div className="grid grid-cols-2 gap-4">
           <RegistryCard
             title="Registrar ganhos"
@@ -84,7 +90,6 @@ export const DashboardTemplate: React.FC = () => {
         <Text variant="body" weight="medium" className="text-xl">
           Aulas
         </Text>
-        
         <Button variant="outline-secondary" className="w-full">
           Funcionalidade indisponível
         </Button>
