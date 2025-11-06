@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createSession, deleteSession } from "./session";
+import { authService } from "../../services/auth/auth";
 
 export type LoginCredentials = {
   email: string;
@@ -10,19 +11,20 @@ export type LoginCredentials = {
 
 export async function loginAction(credentials: LoginCredentials) {
   try {
-    if (credentials.email && credentials.password) {
-      await createSession({
-        id: "1",
-        name: "Usuário Exemplo",
-        email: credentials.email,
-      });
+    const response = await authService.login(credentials.email, credentials.password);
+    
+    await createSession({
+      id: response.user.id,
+      name: response.user.name,
+      email: response.user.email,
+    });
 
-      return { success: true };
-    }
-
-    return { success: false, error: "Credenciais inválidas" };
+    return { 
+      success: true,
+      user: response.user
+    };
   } catch (error) {
-    return { success: false, error: "Erro ao fazer login" };
+    return { success: false, error: "Email ou senha inválidos" };
   }
 }
 
@@ -37,14 +39,19 @@ export async function registerAction(data: {
   password: string;
 }) {
   try {
+    const response = await authService.register(data.name, data.email, data.password);
+    
     await createSession({
-      id: "1",
-      name: data.name,
-      email: data.email,
+      id: response.user.id,
+      name: response.user.name,
+      email: response.user.email,
     });
 
-    return { success: true };
+    return { 
+      success: true,
+      user: response.user
+    };
   } catch (error) {
-    return { success: false, error: "Erro ao registrar" };
+    return { success: false, error: "Erro ao registrar usuário" };
   }
 }

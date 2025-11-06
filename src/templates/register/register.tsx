@@ -4,11 +4,13 @@ import { Button, Input, Progress, Text } from "@/components/atoms";
 import { ChipGroup } from "@/components/molecules";
 import { ROUTES } from "@/constants/routes/routes";
 import { useFormValidation } from "@/hooks";
-import {Arrow, Chevron} from "@/icons";
+import { Arrow } from "@/icons";
 import { confirmPassword, email, min, required } from "@/utils";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useState } from "react";
+import { registerAction } from "@/lib/auth/actions";
+import { saveUserToLocalStorage } from "@/lib/auth/storage";
 
 export const RegisterTemplate: React.FC = () => {
   const searchParams = useSearchParams();
@@ -31,6 +33,8 @@ export const RegisterTemplate: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [registerError, setRegisterError] = useState<string | null>(null);
 
   const { validate, handleChange, handleBlur, getError } = useFormValidation({
     schema: {
@@ -101,9 +105,10 @@ export const RegisterTemplate: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    setRegisterError(null);
     
     if (step === 1) {
       if (!validate({ ...formData })) {
@@ -112,7 +117,7 @@ export const RegisterTemplate: React.FC = () => {
       push(`${ROUTES.REGISTER_STEP}2`);
     } else if (step === 2) {
       if (selectedObjectives.length === 0) {
-        alert("Selecione pelo menos um objetivo");
+        setRegisterError("Selecione pelo menos um objetivo");
         return;
       }
       push(`${ROUTES.REGISTER_STEP}3`);
@@ -120,19 +125,35 @@ export const RegisterTemplate: React.FC = () => {
       if (!validatePassword({ ...passwordData })) {
         return;
       }
-      console.log("Dados finais:", { formData, selectedObjectives, passwordData });
-      // Aqui você pode enviar os dados para o backend
-      push(ROUTES.LOGIN);
+      
+      setIsLoading(true);
+      try {
+        const result = await registerAction({
+          name: `${formData.nome} ${formData.sobrenome}`,
+          email: formData.email,
+          password: passwordData.password,
+        });
+
+        if (result.success && result.user) {
+          saveUserToLocalStorage(result.user);
+          push(ROUTES.DASHBOARD);
+        } else {
+          setRegisterError(result.error || "Erro ao criar conta");
+        }
+      } catch (error) {
+        setRegisterError("Erro ao conectar com o servidor");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const renderStepsRegister: Record<number, ReactNode> = {
     1: (
-      <div className="flex flex-col items-start justify-start gap-6 w-full lg:items-center lg:justify-center">
+      <div className="flex flex-col items-start justify-start gap-6 w-full">
         <Input
           name="nome"
           placeholder="Nome"
-
           value={formData.nome}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
@@ -158,11 +179,10 @@ export const RegisterTemplate: React.FC = () => {
       </div>
     ),
     2: (
-      <div className="flex flex-col items-start justify-start gap-6 w-full lg:items-center lg:justify-center">
+      <div className="flex flex-col items-start justify-start gap-6 w-full">
         <ChipGroup
           title="Selecione seus objetivos:"
           options={objectives}
-          className="lg:w-2xl"
           selectedValues={selectedObjectives}
           onChange={setSelectedObjectives}
           multiple
@@ -180,6 +200,7 @@ export const RegisterTemplate: React.FC = () => {
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           error={getPasswordError("password")}
+          disabled={isLoading}
         />
         <Input
           name="confirmPassword"
@@ -189,47 +210,53 @@ export const RegisterTemplate: React.FC = () => {
           onChange={handleInputChange}
           onBlur={handleInputBlur}
           error={getPasswordError("confirmPassword")}
+          disabled={isLoading}
         />
+        {registerError && (
+          <Text variant="caption" className="text-red-500">
+            {registerError}
+          </Text>
+        )}
       </div>
     ),
   };
 
   const currentStep = renderStepsRegister[step] || renderStepsRegister[1];
-  const progress = step === 1 ? 33 : step === 2 ? 66 : 100;
+  const progress = step === 1 ? 50 : step === 2 ? 75 : 100;
 
   return (
     <form onSubmit={handleSubmit} className="w-full h-full">
-      <Button variant="back" size="icon" onClick={() => back()} className="cursor-pointer">
-        <Chevron/>
+      <Button variant="back" size="icon" onClick={() => back()}>
+        <Arrow />
       </Button>
-      <div className="h-full w-full flex flex-col items-center justify-evenly lg:items-center lg:justify-center">
-        <Image src="/logo.svg" alt="Logo" width={142} height={73}  className="mb-12 lg:mb-16"/>
+      <div className="h-full w-full flex flex-col items-center justify-evenly">
+        <Image src="/logo.svg" alt="Logo" width={142} height={73} />
 
-        <div className="w-full flex flex-col items-center justify-center" >
-          <div className="flex flex-col items-start justify-start gap-6 mb-16 lg:items-center lg:justify-center">
-            <Text variant="body" weight="medium" as="h1" className="text-2xl! lg:text-4xl!">
+        <div className="w-full">
+          <div className="flex flex-col items-start justify-start gap-6 mb-16">
+            <Text variant="body" weight="medium" as="h1" className="text-2xl!">
               Crie sua conta
             </Text>
-            <Text variant="caption" weight="normal" as="p" className="text-base lg:text-lg lg:text-center">
+            <Text variant="caption" weight="normal" as="p">
               Crie sua conta e comece a aprender, competir e evoluir
               financeiramente!
             </Text>
           </div>
 
-          <div className="mb-16 w-full lg:w-2xl">{currentStep}</div>
+          <div className="mb-16">{currentStep}</div>
 
           <Button 
             type="submit" 
             className="w-full mb-16 lg:w-2xl cursor-pointer"
-            disabled={step === 2 && selectedObjectives.length === 0}
+            disabled={(step === 2 && selectedObjectives.length === 0) || isLoading}
           >
             <div className="flex items-center justify-between px-4 w-full">
-              {step === 3 ? "Finalizar" : "Continuar"}
+              {isLoading ? "Criando conta..." : step === 3 ? "Finalizar" : "Continuar"}
               <Arrow direction="right" />
             </div>
           </Button>
 
-          <Progress progress={progress}/>
+          <Progress progress={progress} />
         </div>
       </div>
     </form>
