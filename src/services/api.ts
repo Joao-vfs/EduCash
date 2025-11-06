@@ -44,6 +44,7 @@ class HttpClient {
       return data;
     } catch (error) {
       if (error instanceof TypeError) {
+        throw new Error("Erro de conexão com a API. Verifique se o servidor está rodando.");
       }
 
       throw error;

@@ -58,19 +58,6 @@ class AuthService {
       },
     };
   }
-
-  /**
-   * Testa a conexão com a API e retorna todos os usuários
-   */
-  async testConnection() {
-    try {
-      const users = await httpClient.get<UserAPI[]>("/usuarios");
-
-      return users;
-    } catch (error) {
-      throw error;
-    }
-  }
 }
 
 export const authService = new AuthService();

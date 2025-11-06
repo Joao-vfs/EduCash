@@ -12,7 +12,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         {title}
       </Text>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col max-h-[200px] overflow-y-auto">
+        {transactions.length === 0 && (
+          <Text variant="caption" weight="normal" className="text-base!">
+            Nenhuma transação encontrada
+          </Text>
+        )}
         {transactions.map((transaction, index) => (
           <TransactionItem key={index} {...transaction} />
         ))}

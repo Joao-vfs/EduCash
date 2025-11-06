@@ -31,8 +31,7 @@ export const LoginTemplate: React.FC = () => {
 
   const { push } = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setLoginError(null);
     
     const isValid = validate(formData);
@@ -60,7 +59,7 @@ export const LoginTemplate: React.FC = () => {
     }
   };
   return (
-    <form onSubmit={handleSubmit} className="w-full h-full">
+    <div className="w-full h-full">
       <Button variant="back" size="icon">
         <Link href="/">
           <Chevron />
@@ -115,10 +114,10 @@ export const LoginTemplate: React.FC = () => {
           </div>
 
           <div className="flex flex-col items-start justify-start gap-6 w-full lg:items-center lg:justify-center">
-            <Button variant="outline" size="lg" disabled={isLoading} className="w-full lg:w-2xl">
+            <Button variant="outline" size="lg" disabled={isLoading} className="w-full lg:w-2xl" onClick={() => push("/forgot-password")}>
               Esqueceu sua senha?
             </Button>
-            <Button type="submit" disabled={isLoading} className="w-full lg:w-2xl">
+            <Button type="submit" disabled={isLoading} className="w-full lg:w-2xl" onClick={handleSubmit}>
               <p>{isLoading ? "Entrando..." : "Confirmar e Entrar"}</p>
             </Button>
           </div>
@@ -126,6 +125,6 @@ export const LoginTemplate: React.FC = () => {
 
         <Link href="/register">Ainda não tem conta? Crie sua conta</Link>
       </div>
-    </form>
+    </div>
   );
 };

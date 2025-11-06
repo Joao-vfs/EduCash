@@ -30,6 +30,19 @@
   background: linear-gradient(95.6deg, #4B5BF5 0%, #2C358F 100%);
 }
 
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-gray);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-white);
+}
+
 body {
   background: var(--color-background);
   color: var(--color-text-white);

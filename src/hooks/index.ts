@@ -4,4 +4,7 @@ export { useFormValidation } from './useFormValidation';
 export type { ValidationRule, ValidationSchema, ValidationErrors, UseFormValidationOptions } from './useFormValidation';
 export { useLocalStorage } from './useLocalStorage';
 export { useLogout } from './useLogout';
+export { useTransactions } from './useTransactions';
+export { useModal } from './useModal';
+export { useDevice } from './useDevice';
 
