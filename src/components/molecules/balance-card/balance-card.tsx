@@ -30,9 +30,6 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
         </Text>
       </div>
 
-      <IconButton variant="secondary" size="md" onClick={onViewDetails}>
-        <Arrow />
-      </IconButton>
     </Card>
   );
 };
