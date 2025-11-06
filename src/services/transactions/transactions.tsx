@@ -17,7 +17,7 @@ class TransactionsService {
     const payload = {
       idUsuario: transaction.idUsuario,
       tipo: transaction.name,
-      valor: transaction.valor,
+      valor: Number(transaction.valor.toFixed(2)),
     };
     const response = await httpClient.post<GetTransactionsResponse>(
       `/${transaction.tipo}`,
@@ -43,7 +43,7 @@ class TransactionsService {
     const payload = {
       idUsuario: idUsuario,
       tipo: name,
-      valor: valor,
+      valor: Number(valor.toFixed(2)),
     };
     const response = await httpClient.patch<GetTransactionsResponse>(
       `/${tipo}/${id}`,
