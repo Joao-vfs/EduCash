@@ -247,7 +247,7 @@ export const RegisterTemplate: React.FC = () => {
 
           <Button 
             type="submit" 
-            className="w-full mb-16"
+            className="w-full mb-16 lg:w-2xl cursor-pointer"
             disabled={(step === 2 && selectedObjectives.length === 0) || isLoading}
           >
             <div className="flex items-center justify-between px-4 w-full">

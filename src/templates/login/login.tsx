@@ -96,6 +96,7 @@ export const LoginTemplate: React.FC = () => {
               name="password"
               placeholder="Senha"
               type="password"
+              className="w-full lg:w-2xl"
               value={formData.password}
               onChange={(e) => {
                 setFormData({ ...formData, password: e.target.value });
@@ -112,11 +113,11 @@ export const LoginTemplate: React.FC = () => {
             )}
           </div>
 
-          <div className="flex flex-col items-start justify-start gap-6 w-full">
-            <Button variant="outline" size="lg" disabled={isLoading}>
+          <div className="flex flex-col items-start justify-start gap-6 w-full lg:items-center lg:justify-center">
+            <Button variant="outline" size="lg" disabled={isLoading} className="w-full lg:w-2xl">
               Esqueceu sua senha?
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="w-full lg:w-2xl">
               <p>{isLoading ? "Entrando..." : "Confirmar e Entrar"}</p>
             </Button>
           </div>
