@@ -4,7 +4,7 @@ import { Button, Input, Progress, Text } from "@/components/atoms";
 import { ChipGroup } from "@/components/molecules";
 import { ROUTES } from "@/constants/routes/routes";
 import { useFormValidation } from "@/hooks";
-import { Arrow } from "@/icons";
+import {Arrow, Chevron} from "@/icons";
 import { confirmPassword, email, min, required } from "@/utils";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -150,7 +150,7 @@ export const RegisterTemplate: React.FC = () => {
 
   const renderStepsRegister: Record<number, ReactNode> = {
     1: (
-      <div className="flex flex-col items-start justify-start gap-6 w-full">
+      <div className="flex flex-col items-start justify-start gap-6 w-full lg:w-2xl">
         <Input
           name="nome"
           placeholder="Nome"
@@ -179,10 +179,11 @@ export const RegisterTemplate: React.FC = () => {
       </div>
     ),
     2: (
-      <div className="flex flex-col items-start justify-start gap-6 w-full">
+      <div className="flex flex-col items-start justify-start gap-6 w-full lg:items-center lg:justify-center">
         <ChipGroup
           title="Selecione seus objetivos:"
           options={objectives}
+          className="lg:w-2xl"
           selectedValues={selectedObjectives}
           onChange={setSelectedObjectives}
           multiple
@@ -206,6 +207,7 @@ export const RegisterTemplate: React.FC = () => {
           name="confirmPassword"
           placeholder="Confirmar senha"
           type="password"
+          className="lg:w-2xl"
           value={passwordData.confirmPassword}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
@@ -227,23 +229,23 @@ export const RegisterTemplate: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="w-full h-full">
       <Button variant="back" size="icon" onClick={() => back()}>
-        <Arrow />
+        <Chevron />
       </Button>
       <div className="h-full w-full flex flex-col items-center justify-evenly">
         <Image src="/logo.svg" alt="Logo" width={142} height={73} />
 
-        <div className="w-full">
-          <div className="flex flex-col items-start justify-start gap-6 mb-16">
-            <Text variant="body" weight="medium" as="h1" className="text-2xl!">
+        <div className="w-full lg:flex lg:flex-col lg:items-center lg:justify-center">
+          <div className="flex flex-col items-start justify-start gap-6 mb-16 lg:items-center lg:justify-center">
+            <Text variant="body" weight="medium" as="h1" className="text-2xl! lg:text-4xl!">
               Crie sua conta
             </Text>
-            <Text variant="caption" weight="normal" as="p">
+            <Text variant="caption" weight="normal" as="p" className="text-base lg:text-lg">
               Crie sua conta e comece a aprender, competir e evoluir
               financeiramente!
             </Text>
           </div>
 
-          <div className="mb-16">{currentStep}</div>
+          <div className="mb-16 lg:flex lg:items-center lg:justify-center">{currentStep}</div>
 
           <Button 
             type="submit" 

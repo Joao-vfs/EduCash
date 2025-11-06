@@ -70,7 +70,7 @@ export const LoginTemplate: React.FC = () => {
         <Image src="/logo.svg" alt="Logo" width={142} height={73} />
 
         <div className="flex flex-col items-start justify-start gap-6 lg:items-center lg:justify-center">
-          <Text variant="body" weight="medium" as="h1" className="text-2xl! lg:text-2xl!">
+          <Text variant="body" weight="medium" as="h1" className="text-2xl! lg:text-4xl!">
             Entre com sua conta
           </Text>
           <Text variant="caption" weight="normal" as="p" className="text-base lg:text-lg">
