@@ -69,20 +69,21 @@ export const LoginTemplate: React.FC = () => {
       <div className="h-full w-full flex flex-col items-center justify-evenly">
         <Image src="/logo.svg" alt="Logo" width={142} height={73} />
 
-        <div className="flex flex-col items-start justify-start gap-6">
-          <Text variant="body" weight="medium" as="h1" className="text-2xl!">
+        <div className="flex flex-col items-start justify-start gap-6 lg:items-center lg:justify-center">
+          <Text variant="body" weight="medium" as="h1" className="text-2xl! lg:text-2xl!">
             Entre com sua conta
           </Text>
-          <Text variant="caption" weight="normal" as="p">
+          <Text variant="caption" weight="normal" as="p" className="text-base lg:text-lg">
             Entre e continue sua jornada financeira com aprendizado e diversão!
           </Text>
         </div>
 
-        <div className="w-full">
-          <div className="flex flex-col items-start justify-start gap-6 w-full mb-16">
+        <div className="w-full lg:flex lg:flex-col lg:items-center lg:justify-center">
+          <div className="flex flex-col items-start justify-start gap-6 w-full mb-16 lg:w-2xl">
             <Input
               name="email"
               placeholder="Email"
+              className="w-full lg:w-2xl"
               value={formData.email}
               onChange={(e) => {
                 setFormData({ ...formData, email: e.target.value });
